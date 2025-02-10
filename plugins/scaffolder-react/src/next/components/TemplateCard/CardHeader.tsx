@@ -15,11 +15,12 @@
  */
 
 import React from 'react';
-import { styled } from '@mui/material/styles';
+import { styled, useTheme } from '@mui/material/styles';
 import { ItemCardHeader } from '@backstage/core-components';
 import { TemplateEntityV1beta3 } from '@backstage/plugin-scaffolder-common';
 import { FavoriteEntity } from '@backstage/plugin-catalog-react';
 import Typography from '@mui/material/Typography';
+import Grid from '@mui/material/Grid';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import UpdateIcon from '@mui/icons-material/Update';
 
@@ -34,8 +35,9 @@ const Header = styled(ItemCardHeader, {
 
 const SubtitleWrapper = styled('div')({
   display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
+  flexDirection: 'column',
+  gap: '8px',
+  width: '100%',
 });
 
 const DateInfo = styled(Typography)(({ theme }) => ({
@@ -47,13 +49,15 @@ const DateInfo = styled(Typography)(({ theme }) => ({
 
 const StyledIcon = styled('span')({
   fontSize: '0.9rem',
+  display: 'flex',
+  alignItems: 'center',
 });
 
-const Dates = styled('div')(({ theme }) => ({
+const TypeAndFavorite = styled('div')({
   display: 'flex',
-  flexDirection: 'column',
-  gap: theme.spacing(0.5),
-}));
+  justifyContent: 'space-between',
+  alignItems: 'center',
+});
 
 /**
  * Props for the CardHeader component
@@ -73,6 +77,10 @@ export const CardHeader = (props: CardHeaderProps) => {
     },
   } = props;
 
+  const theme = useTheme();
+  const { getPageTheme } = theme;
+  const themeForType = getPageTheme({ themeId: type });
+
   const createdAt = annotations['created-at']
     ? new Date(annotations['created-at']).toLocaleDateString()
     : null;
@@ -82,28 +90,32 @@ export const CardHeader = (props: CardHeaderProps) => {
 
   const SubtitleComponent = (
     <SubtitleWrapper>
-      <div>{type}</div>
-      <Dates>
+      <Grid container spacing={2}>
         {createdAt && (
-          <DateInfo variant="caption">
-            <StyledIcon>
-              <CalendarTodayIcon fontSize="inherit" />
-            </StyledIcon>
-            Created: {createdAt}
-          </DateInfo>
+          <Grid item xs={6}>
+            <DateInfo variant="caption">
+              <StyledIcon>
+                <CalendarTodayIcon fontSize="inherit" />
+              </StyledIcon>
+              Created: {createdAt}
+            </DateInfo>
+          </Grid>
         )}
         {updatedAt && (
-          <DateInfo variant="caption">
-            <StyledIcon>
-              <UpdateIcon fontSize="inherit" />
-            </StyledIcon>
-            Updated: {updatedAt}
-          </DateInfo>
+          <Grid item xs={6}>
+            <DateInfo variant="caption">
+              <StyledIcon>
+                <UpdateIcon fontSize="inherit" />
+              </StyledIcon>
+              Updated: {updatedAt}
+            </DateInfo>
+          </Grid>
         )}
-      </Dates>
-      <div>
+      </Grid>
+      <TypeAndFavorite>
+        <Typography variant="subtitle2">{type}</Typography>
         <FavoriteEntity entity={props.template} style={{ padding: 0 }} />
-      </div>
+      </TypeAndFavorite>
     </SubtitleWrapper>
   );
 
@@ -111,8 +123,8 @@ export const CardHeader = (props: CardHeaderProps) => {
     <Header
       title={title ?? name}
       subtitle={SubtitleComponent}
-      cardBackgroundImage={props.template.spec.type}
-      cardFontColor="inherit"
+      cardBackgroundImage={themeForType.backgroundImage}
+      cardFontColor={themeForType.fontColor}
     />
   );
 };
