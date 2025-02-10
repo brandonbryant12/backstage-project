@@ -16,35 +16,26 @@
 
 import React from 'react';
 import { styled, useTheme } from '@mui/material/styles';
-import { ItemCardHeader } from '@backstage/core-components';
 import { TemplateEntityV1beta3 } from '@backstage/plugin-scaffolder-common';
 import { FavoriteEntity } from '@backstage/plugin-catalog-react';
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import UpdateIcon from '@mui/icons-material/Update';
+import { TemplateCardHeader } from './TemplateCardHeader';
 
-const Header = styled(ItemCardHeader, {
-  shouldForwardProp: prop => prop !== 'cardBackgroundImage' && prop !== 'cardFontColor',
-})<{ cardBackgroundImage: string; cardFontColor: string }>(
-  ({ cardBackgroundImage, cardFontColor }) => ({
-    backgroundImage: cardBackgroundImage,
-    color: cardFontColor,
-  }),
-);
-
-const SubtitleWrapper = styled('div')({
+const MetadataContainer = styled('div')(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
-  gap: '8px',
-  width: '100%',
-});
+  gap: theme.spacing(1),
+}));
 
 const DateInfo = styled(Typography)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   gap: theme.spacing(1),
   fontSize: '0.8rem',
+  color: 'inherit',
 }));
 
 const StyledIcon = styled('span')({
@@ -57,6 +48,7 @@ const TypeAndFavorite = styled('div')({
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',
+  width: '100%',
 });
 
 /**
@@ -88,8 +80,14 @@ export const CardHeader = (props: CardHeaderProps) => {
     ? new Date(annotations['updated-at']).toLocaleDateString()
     : null;
 
-  const SubtitleComponent = (
-    <SubtitleWrapper>
+  const bottomSection = (
+    <MetadataContainer>
+      <TypeAndFavorite>
+        <Typography variant="subtitle2" color="inherit">
+          {type}
+        </Typography>
+        <FavoriteEntity entity={props.template} style={{ padding: 0 }} />
+      </TypeAndFavorite>
       <Grid container spacing={2}>
         {createdAt && (
           <Grid item xs={6}>
@@ -112,19 +110,15 @@ export const CardHeader = (props: CardHeaderProps) => {
           </Grid>
         )}
       </Grid>
-      <TypeAndFavorite>
-        <Typography variant="subtitle2">{type}</Typography>
-        <FavoriteEntity entity={props.template} style={{ padding: 0 }} />
-      </TypeAndFavorite>
-    </SubtitleWrapper>
+    </MetadataContainer>
   );
 
   return (
-    <Header
+    <TemplateCardHeader
       title={title ?? name}
-      subtitle={SubtitleComponent}
-      cardBackgroundImage={themeForType.backgroundImage}
-      cardFontColor={themeForType.fontColor}
+      bottomSection={bottomSection}
+      backgroundImage={themeForType.backgroundImage}
+      textColor={themeForType.fontColor}
     />
   );
 };
