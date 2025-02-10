@@ -40,6 +40,8 @@ const TitleSection = styled('div')(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
   gap: theme.spacing(0.5),
+  marginTop: theme.spacing(1),
+  marginBottom: theme.spacing(1),
 }));
 
 export interface TemplateCardHeaderProps {
@@ -48,9 +50,9 @@ export interface TemplateCardHeaderProps {
    */
   title?: React.ReactNode;
   /**
-   * Subtitle to display below the title
+   * Content to display above the title
    */
-  subtitle?: React.ReactNode;
+  topSection?: React.ReactNode;
   /**
    * Optional section to display at the bottom of the header
    */
@@ -67,24 +69,18 @@ export interface TemplateCardHeaderProps {
 
 /**
  * A card header component specifically designed for template cards,
- * with support for a bottom section (e.g., for dates)
+ * with support for sections above and below the title
  */
 export function TemplateCardHeader(props: TemplateCardHeaderProps) {
-  const { title, subtitle, bottomSection, backgroundImage, textColor } = props;
+  const { title, topSection, bottomSection, backgroundImage, textColor } = props;
 
   return (
     <HeaderRoot backgroundImage={backgroundImage} textColor={textColor}>
+      {topSection}
       <TitleSection>
-        {subtitle && (
-          <Typography variant="subtitle2" component="h3">
-            {subtitle}
-          </Typography>
-        )}
-        {title && (
-          <Typography variant="h6" component="h4">
-            {title}
-          </Typography>
-        )}
+        <Typography variant="h6" component="h4">
+          {title}
+        </Typography>
       </TitleSection>
       {bottomSection}
     </HeaderRoot>

@@ -24,12 +24,6 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import UpdateIcon from '@mui/icons-material/Update';
 import { TemplateCardHeader } from './TemplateCardHeader';
 
-const MetadataContainer = styled('div')(({ theme }) => ({
-  display: 'flex',
-  flexDirection: 'column',
-  gap: theme.spacing(1),
-}));
-
 const DateInfo = styled(Typography)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
@@ -80,42 +74,44 @@ export const CardHeader = (props: CardHeaderProps) => {
     ? new Date(annotations['updated-at']).toLocaleDateString()
     : null;
 
+  const topSection = (
+    <TypeAndFavorite>
+      <Typography variant="subtitle2" color="inherit">
+        {type}
+      </Typography>
+      <FavoriteEntity entity={props.template} style={{ padding: 0 }} />
+    </TypeAndFavorite>
+  );
+
   const bottomSection = (
-    <MetadataContainer>
-      <TypeAndFavorite>
-        <Typography variant="subtitle2" color="inherit">
-          {type}
-        </Typography>
-        <FavoriteEntity entity={props.template} style={{ padding: 0 }} />
-      </TypeAndFavorite>
-      <Grid container spacing={2}>
-        {createdAt && (
-          <Grid item xs={6}>
-            <DateInfo variant="caption">
-              <StyledIcon>
-                <CalendarTodayIcon fontSize="inherit" />
-              </StyledIcon>
-              Created: {createdAt}
-            </DateInfo>
-          </Grid>
-        )}
-        {updatedAt && (
-          <Grid item xs={6}>
-            <DateInfo variant="caption">
-              <StyledIcon>
-                <UpdateIcon fontSize="inherit" />
-              </StyledIcon>
-              Updated: {updatedAt}
-            </DateInfo>
-          </Grid>
-        )}
-      </Grid>
-    </MetadataContainer>
+    <Grid container spacing={2}>
+      {createdAt && (
+        <Grid item xs={6}>
+          <DateInfo variant="caption">
+            <StyledIcon>
+              <CalendarTodayIcon fontSize="inherit" />
+            </StyledIcon>
+            Created: {createdAt}
+          </DateInfo>
+        </Grid>
+      )}
+      {updatedAt && (
+        <Grid item xs={6}>
+          <DateInfo variant="caption">
+            <StyledIcon>
+              <UpdateIcon fontSize="inherit" />
+            </StyledIcon>
+            Updated: {updatedAt}
+          </DateInfo>
+        </Grid>
+      )}
+    </Grid>
   );
 
   return (
     <TemplateCardHeader
       title={title ?? name}
+      topSection={topSection}
       bottomSection={bottomSection}
       backgroundImage={themeForType.backgroundImage}
       textColor={themeForType.fontColor}
