@@ -16,7 +16,7 @@
 
 import { IconComponent } from '@backstage/core-plugin-api';
 import { Link } from '@backstage/core-components';
-import { styled } from '@mui/material/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import React from 'react';
 
 interface CardLinkProps {
@@ -25,22 +25,22 @@ interface CardLinkProps {
   url: string;
 }
 
-const LinkText = styled('div')({
-  display: 'inline-flex',
-  alignItems: 'center',
-});
-
-const StyledLink = styled(Link)({
-  marginLeft: '8px',
-});
+const useStyles = makeStyles(() => ({
+  linkText: {
+    display: 'inline-flex',
+    alignItems: 'center',
+  },
+}));
 
 export const CardLink = ({ icon: Icon, text, url }: CardLinkProps) => {
+  const styles = useStyles();
+
   return (
-    <LinkText>
+    <div className={styles.linkText}>
       <Icon fontSize="small" />
-      <StyledLink to={url}>
+      <Link style={{ marginLeft: '8px' }} to={url}>
         {text || url}
-      </StyledLink>
-    </LinkText>
+      </Link>
+    </div>
   );
 };

@@ -15,26 +15,44 @@
  */
 
 import React from 'react';
-import { Theme, makeStyles, useTheme } from '@material-ui/core/styles';
+import { styled } from '@mui/material/styles';
 import { ItemCardHeader } from '@backstage/core-components';
 import { TemplateEntityV1beta3 } from '@backstage/plugin-scaffolder-common';
 import { FavoriteEntity } from '@backstage/plugin-catalog-react';
+import Typography from '@mui/material/Typography';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import UpdateIcon from '@mui/icons-material/Update';
 
-const useStyles = makeStyles<
-  Theme,
-  {
-    cardFontColor: string;
-    cardBackgroundImage: string;
-  }
->(() => ({
-  header: {
-    backgroundImage: ({ cardBackgroundImage }) => cardBackgroundImage,
-    color: ({ cardFontColor }) => cardFontColor,
-  },
-  subtitleWrapper: {
-    display: 'flex',
-    justifyContent: 'space-between',
-  },
+const Header = styled(ItemCardHeader, {
+  shouldForwardProp: prop => prop !== 'cardBackgroundImage' && prop !== 'cardFontColor',
+})<{ cardBackgroundImage: string; cardFontColor: string }>(
+  ({ cardBackgroundImage, cardFontColor }) => ({
+    backgroundImage: cardBackgroundImage,
+    color: cardFontColor,
+  }),
+);
+
+const SubtitleWrapper = styled('div')({
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+});
+
+const DateInfo = styled(Typography)(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  gap: theme.spacing(1),
+  fontSize: '0.8rem',
+}));
+
+const StyledIcon = styled('span')({
+  fontSize: '0.9rem',
+});
+
+const Dates = styled('div')(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: theme.spacing(0.5),
 }));
 
 /**
@@ -50,32 +68,51 @@ export interface CardHeaderProps {
 export const CardHeader = (props: CardHeaderProps) => {
   const {
     template: {
-      metadata: { title, name },
+      metadata: { title, name, annotations = {} },
       spec: { type },
     },
   } = props;
-  const { getPageTheme } = useTheme();
-  const themeForType = getPageTheme({ themeId: type });
 
-  const styles = useStyles({
-    cardFontColor: themeForType.fontColor,
-    cardBackgroundImage: themeForType.backgroundImage,
-  });
+  const createdAt = annotations['created-at']
+    ? new Date(annotations['created-at']).toLocaleDateString()
+    : null;
+  const updatedAt = annotations['updated-at']
+    ? new Date(annotations['updated-at']).toLocaleDateString()
+    : null;
 
   const SubtitleComponent = (
-    <div className={styles.subtitleWrapper}>
+    <SubtitleWrapper>
       <div>{type}</div>
+      <Dates>
+        {createdAt && (
+          <DateInfo variant="caption">
+            <StyledIcon>
+              <CalendarTodayIcon fontSize="inherit" />
+            </StyledIcon>
+            Created: {createdAt}
+          </DateInfo>
+        )}
+        {updatedAt && (
+          <DateInfo variant="caption">
+            <StyledIcon>
+              <UpdateIcon fontSize="inherit" />
+            </StyledIcon>
+            Updated: {updatedAt}
+          </DateInfo>
+        )}
+      </Dates>
       <div>
         <FavoriteEntity entity={props.template} style={{ padding: 0 }} />
       </div>
-    </div>
+    </SubtitleWrapper>
   );
 
   return (
-    <ItemCardHeader
+    <Header
       title={title ?? name}
       subtitle={SubtitleComponent}
-      classes={{ root: styles.header }}
+      cardBackgroundImage={props.template.spec.type}
+      cardFontColor="inherit"
     />
   );
 };

@@ -26,57 +26,56 @@ import {
   getEntityRelations,
 } from '@backstage/plugin-catalog-react';
 import { TemplateEntityV1beta3 } from '@backstage/plugin-scaffolder-common';
-import { styled } from '@mui/material/styles';
-import Box from '@mui/material/Box';
-import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
-import CardContent from '@mui/material/CardContent';
-import Chip from '@mui/material/Chip';
-import Divider from '@mui/material/Divider';
-import Button from '@mui/material/Button';
-import Grid from '@mui/material/Grid';
-import LanguageIcon from '@mui/icons-material/Language';
+import Box from '@material-ui/core/Box';
+import Card from '@material-ui/core/Card';
+import CardActions from '@material-ui/core/CardActions';
+import CardContent from '@material-ui/core/CardContent';
+import Chip from '@material-ui/core/Chip';
+import Divider from '@material-ui/core/Divider';
+import Button from '@material-ui/core/Button';
+import Grid from '@material-ui/core/Grid';
+import { makeStyles, Theme } from '@material-ui/core/styles';
+import LanguageIcon from '@material-ui/icons/Language';
 import React, { useCallback } from 'react';
 import { CardHeader } from './CardHeader';
 import { CardLink } from './CardLink';
 import { usePermission } from '@backstage/plugin-permission-react';
 import { taskCreatePermission } from '@backstage/plugin-scaffolder-common/alpha';
 
-const StyledBox = styled(Box)({
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-  display: '-webkit-box',
-  WebkitLineClamp: 10,
-  WebkitBoxOrient: 'vertical',
-});
-
-const StyledMarkdown = styled(MarkdownContent)({
-  '& :first-child': {
-    margin: 0,
+const useStyles = makeStyles<Theme>(theme => ({
+  box: {
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    display: '-webkit-box',
+    '-webkit-line-clamp': 10,
+    '-webkit-box-orient': 'vertical',
   },
-});
-
-const Label = styled('div')(({ theme }) => ({
-  color: theme.palette.text.secondary,
-  textTransform: 'uppercase',
-  fontWeight: 'bold',
-  letterSpacing: 0.5,
-  lineHeight: 1,
-  fontSize: '0.75rem',
-}));
-
-const Footer = styled('div')({
-  display: 'flex',
-  justifyContent: 'space-between',
-  flex: 1,
-  alignItems: 'center',
-});
-
-const OwnedBy = styled('div')(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  flex: 1,
-  color: theme.palette.primary.main,
+  markdown: {
+    /** to make the styles for React Markdown not leak into the description */
+    '& :first-child': {
+      margin: 0,
+    },
+  },
+  label: {
+    color: theme.palette.text.secondary,
+    textTransform: 'uppercase',
+    fontWeight: 'bold',
+    letterSpacing: 0.5,
+    lineHeight: 1,
+    fontSize: '0.75rem',
+  },
+  footer: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    flex: 1,
+    alignItems: 'center',
+  },
+  ownedBy: {
+    display: 'flex',
+    alignItems: 'center',
+    flex: 1,
+    color: theme.palette.link,
+  },
 }));
 
 /**
@@ -100,6 +99,7 @@ export interface TemplateCardProps {
  */
 export const TemplateCard = (props: TemplateCardProps) => {
   const { onSelected, template } = props;
+  const styles = useStyles();
   const analytics = useAnalytics();
   const ownedByRelations = getEntityRelations(template, RELATION_OWNED_BY);
   const app = useApp();
@@ -113,7 +113,6 @@ export const TemplateCard = (props: TemplateCardProps) => {
   const { allowed: canCreateTask } = usePermission({
     permission: taskCreatePermission,
   });
-
   const handleChoose = useCallback(() => {
     analytics.captureEvent('click', `Template has been opened`);
     onSelected?.(template);
@@ -125,11 +124,12 @@ export const TemplateCard = (props: TemplateCardProps) => {
       <CardContent>
         <Grid container spacing={2}>
           <Grid item xs={12}>
-            <StyledBox>
-              <StyledMarkdown
+            <Box className={styles.box}>
+              <MarkdownContent
+                className={styles.markdown}
                 content={template.metadata.description ?? 'No description'}
               />
-            </StyledBox>
+            </Box>
           </Grid>
           {displayDefaultDivider && (
             <Grid item xs={12}>
@@ -165,13 +165,13 @@ export const TemplateCard = (props: TemplateCardProps) => {
               <Grid item xs={12}>
                 <Grid container spacing={2}>
                   {props.additionalLinks?.map(({ icon, text, url }, index) => (
-                    <Grid item xs={6} key={index}>
+                    <Grid className={styles.linkText} item xs={6} key={index}>
                       <CardLink icon={icon} text={text} url={url} />
                     </Grid>
                   ))}
                   {template.metadata.links?.map(
                     ({ url, icon, title }, index) => (
-                      <Grid item xs={6} key={index}>
+                      <Grid className={styles.linkText} item xs={6} key={index}>
                         <CardLink
                           icon={iconResolver(icon)}
                           text={title || url}
@@ -187,8 +187,8 @@ export const TemplateCard = (props: TemplateCardProps) => {
         </Grid>
       </CardContent>
       <CardActions style={{ padding: '16px', flex: 1, alignItems: 'flex-end' }}>
-        <Footer>
-          <OwnedBy>
+        <div className={styles.footer}>
+          <div className={styles.ownedBy}>
             {ownedByRelations.length > 0 && (
               <>
                 <UserIcon fontSize="small" />
@@ -200,7 +200,7 @@ export const TemplateCard = (props: TemplateCardProps) => {
                 />
               </>
             )}
-          </OwnedBy>
+          </div>
           {canCreateTask ? (
             <Button
               size="small"
@@ -211,7 +211,7 @@ export const TemplateCard = (props: TemplateCardProps) => {
               Choose
             </Button>
           ) : null}
-        </Footer>
+        </div>
       </CardActions>
     </Card>
   );
